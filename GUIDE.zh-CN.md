@@ -8,14 +8,23 @@
 - AI 改一点坏一点，最后变成垃圾场
 - 不同 IDE / Agent 工具之间规则不一致
 - 代码、文档、测试、进度没有统一事实来源
+- 新增功能、修 bug、重构时容易从头乱改
 
-这个仓库把这些问题收敛成一套固定工作流：
+这个仓库把这些问题收敛成两套主流程：
+
+### 启动项目
 
 1. 先写需求文档
 2. 再写概要设计
 3. 再写详细设计
 4. 再拆成模块任务
 5. 最后生成执行 Prompt 并进入编码
+
+### 持续开发
+
+- 新增功能：先建 `docs/changes/feature-*.md`
+- 修 bug：先建 `docs/changes/bugfix-*.md`
+- 重构：先建 `docs/changes/refactor-*.md`
 
 ## 你该怎么用
 
@@ -44,6 +53,45 @@ python tools/vcflow.py init --profile python
 2. 运行 `init`
 3. 从需求梳理或增量需求梳理开始，而不是直接让 AI 改代码
 
+### 新增功能
+
+```bash
+python tools/vcflow.py new-change --type feature --name tags
+```
+
+然后让 IDE 读取：
+
+- `docs/changes/feature-tags.md`
+- `docs/proposal.md`
+- `docs/detailed-design.md`
+- `templates/07-feature-change.prompt.md`
+
+### 修复 bug
+
+```bash
+python tools/vcflow.py new-change --type bugfix --name search-crash
+```
+
+然后让 IDE 读取：
+
+- `docs/changes/bugfix-search-crash.md`
+- `docs/detailed-design.md`
+- 对应模块任务文件
+- `templates/06-bugfix.prompt.md`
+
+### 重构
+
+```bash
+python tools/vcflow.py new-change --type refactor --name storage-cleanup
+```
+
+然后让 IDE 读取：
+
+- `docs/changes/refactor-storage-cleanup.md`
+- `docs/detailed-design.md`
+- 对应模块任务文件
+- `templates/08-refactor.prompt.md`
+
 ## 最重要的使用原则
 
 - 一阶段一会话
@@ -51,6 +99,7 @@ python tools/vcflow.py init --profile python
 - 文件是事实来源，聊天不是
 - 不明确时先问，别让 AI 猜
 - 编码完成不等于完成，过检查才算完成
+- 持续开发优先走增量变更流，不默认从头重跑完整启动流
 
 ## 不同工具怎么接入
 
@@ -82,3 +131,4 @@ python tools/vcflow.py init --profile python
 - 你要在多个 IDE / Agent 之间切换
 - 你想让 AI 长期持续开发，而不是只生成一次代码
 - 你需要文档、进度、测试、检查一起受控
+- 你需要让新增功能、修 bug、重构都走统一闭环

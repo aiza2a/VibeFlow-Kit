@@ -4,6 +4,12 @@
 
 `proposal -> high-level-design -> detailed-design -> tasks -> coding`
 
+## 增量变更链
+
+- 功能新增：`change -> affected docs -> affected tasks -> coding -> acceptance`
+- Bug 修复：`reproduce -> regression test -> fix -> verify`
+- 重构：`scope -> protection tests -> refactor -> full check`
+
 ## 阶段原则
 
 - 一阶段一会话
@@ -37,6 +43,24 @@
 - 输入：前述文档 + 当前模块任务文件
 - 输出：代码、测试、文档更新、任务状态更新
 - 要求：实现后立即检查，不把大批未验证改动堆到最后
+
+## 持续开发方式
+
+### 新增功能
+- 先创建 `docs/changes/feature-<name>.md`
+- 评估是否影响 `proposal` / `detailed-design`
+- 只为受影响模块更新任务文件
+- 按模块增量实现
+
+### Bug 修复
+- 先创建 `docs/changes/bugfix-<name>.md`
+- 先复现，再补回归测试，再修复
+- 若不改变需求边界，通常不改 `proposal.md`
+
+### 重构
+- 先创建 `docs/changes/refactor-<name>.md`
+- 优先保证外部行为稳定
+- 先补保护性测试，再动结构
 
 ## 会话控制
 

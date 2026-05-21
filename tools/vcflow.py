@@ -13,6 +13,8 @@ TASKS = DOCS / "tasks"
 AI_DIR = ROOT / ".ai"
 PROFILES = AI_DIR / "profiles"
 PROJECT_JSON = AI_DIR / "project.json"
+CHANGES_DIR = DOCS / "changes"
+DECISIONS_DIR = DOCS / "decisions"
 
 
 def read_profile(name: str) -> dict[str, Any]:
@@ -49,14 +51,19 @@ def cmd_init(profile: str) -> None:
     read_profile(profile)
     DOCS.mkdir(parents=True, exist_ok=True)
     TASKS.mkdir(parents=True, exist_ok=True)
+    CHANGES_DIR.mkdir(parents=True, exist_ok=True)
+    DECISIONS_DIR.mkdir(parents=True, exist_ok=True)
 
     ensure_file(DOCS / "proposal.md", "# 需求文档\n\n待生成。\n")
     ensure_file(DOCS / "high-level-design.md", "# 概要设计文档\n\n待生成。\n")
     ensure_file(DOCS / "detailed-design.md", "# 详细设计文档\n\n待生成。\n")
     ensure_file(DOCS / "prompt.md", "# 执行 Prompt\n\n待生成。\n")
+    ensure_file(DOCS / "acceptance.md", "# 验收清单\n\n- [ ] 待补充\n")
+    ensure_file(DOCS / "release-checklist.md", "# 发布清单\n\n- [ ] 待补充\n")
     ensure_file(TASKS / "progress.md", "# 总体进度\n\n- [ ] 待生成模块任务\n")
+    ensure_file(DECISIONS_DIR / "README.md", "# 决策记录索引\n\n用于记录关键设计决策。\n")
     write_project_config(profile)
-    print(f"Initialized vibe coding project with profile: {profile}")
+    print(f"Initialized VibeFlow project with profile: {profile}")
     print(f"Project config: {PROJECT_JSON}")
 
 
@@ -88,10 +95,44 @@ def cmd_new_module(name: str) -> None:
     print(f"Created module task file: {path}")
 
 
+def build_change_template(change_type: str, name: str) -> str:
+    if change_type == "feature":
+        return f"# 变更说明：feature-{name}\n\n## 目标\n\n待补充。\n\n## 背景\n\n待补充。\n\n## 影响范围\n\n- 模块：待补充\n- 文档：待补充\n- 测试：待补充\n\n## 验收标准\n\n- [ ] 待补充\n\n## 非目标\n\n- [ ] 待补充\n\n## 风险与备注\n\n- 待补充\n"
+    if change_type == "bugfix":
+        return f"# 变更说明：bugfix-{name}\n\n## 问题描述\n\n待补充。\n\n## 复现步骤\n\n1. 待补充\n\n## 期望行为\n\n待补充。\n\n## 影响范围\n\n- 模块：待补充\n- 测试：待补充\n\n## 修复约束\n\n- [ ] 先补回归测试\n- [ ] 不无关扩大改动范围\n\n## 验证结果\n\n- [ ] 待补充\n"
+    if change_type == "refactor":
+        return f"# 变更说明：refactor-{name}\n\n## 目标\n\n待补充。\n\n## 当前问题\n\n待补充。\n\n## 范围\n\n- 模块：待补充\n- 外部行为：默认不变\n\n## 非目标\n\n- [ ] 不新增功能\n- [ ] 不修改无关模块\n\n## 保护措施\n\n- [ ] 先补测试或确认现有测试覆盖\n- [ ] 完成后运行完整检查\n"
+    raise SystemExit(f"Unsupported change type: {change_type}")
+
+
+def cmd_new_change(change_type: str, name: str) -> None:
+    CHANGES_DIR.mkdir(parents=True, exist_ok=True)
+    path = CHANGES_DIR / f"{change_type}-{name}.md"
+    if path.exists():
+        raise SystemExit(f"Change file already exists: {path}")
+    path.write_text(build_change_template(change_type, name), encoding="utf-8")
+    print(f"Created change file: {path}")
+
+
+def cmd_new_decision(title: str) -> None:
+    DECISIONS_DIR.mkdir(parents=True, exist_ok=True)
+    existing = sorted(DECISIONS_DIR.glob("ADR-*.md"))
+    next_num = len([p for p in existing if p.name != "README.md"]) + 1
+    slug = title.strip().lower().replace(" ", "-")
+    path = DECISIONS_DIR / f"ADR-{next_num:03d}-{slug}.md"
+    if path.exists():
+        raise SystemExit(f"Decision file already exists: {path}")
+    content = f"# ADR-{next_num:03d}-{title}\n\n## 背景\n\n待补充。\n\n## 决策\n\n待补充。\n\n## 影响\n\n待补充。\n\n## 备选方案\n\n待补充。\n"
+    path.write_text(content, encoding="utf-8")
+    print(f"Created decision file: {path}")
+
+
 def cmd_doctor() -> None:
     checks = {
         "docs": DOCS.exists(),
         "tasks": TASKS.exists(),
+        "changes": CHANGES_DIR.exists(),
+        "decisions": DECISIONS_DIR.exists(),
         "project_json": PROJECT_JSON.exists(),
         "templates": (ROOT / "templates").exists(),
         "claude_rules": (ROOT / "CLAUDE.md").exists(),
@@ -113,7 +154,7 @@ def cmd_doctor() -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Vibe coding workflow helper")
+    parser = argparse.ArgumentParser(description="VibeFlow workflow helper")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_init = sub.add_parser("init", help="initialize docs and project config")
@@ -127,6 +168,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_new = sub.add_parser("new-module", help="create a new module task file")
     p_new.add_argument("--name", required=True)
+
+    p_change = sub.add_parser("new-change", help="create a change file")
+    p_change.add_argument("--type", required=True, choices=["feature", "bugfix", "refactor"])
+    p_change.add_argument("--name", required=True)
+
+    p_decision = sub.add_parser("new-decision", help="create a decision record file")
+    p_decision.add_argument("--title", required=True)
 
     sub.add_parser("doctor", help="check starter kit structure and common commands")
 
@@ -145,6 +193,10 @@ def main() -> None:
         cmd_set_profile(args.profile)
     elif args.command == "new-module":
         cmd_new_module(args.name)
+    elif args.command == "new-change":
+        cmd_new_change(args.type, args.name)
+    elif args.command == "new-decision":
+        cmd_new_decision(args.title)
     elif args.command == "doctor":
         cmd_doctor()
     else:

@@ -6,11 +6,13 @@ alwaysApply: true
 # Vibe Coding Rule
 
 - Treat `docs/` as the single source of truth.
-- Follow the staged workflow: `proposal -> high-level-design -> detailed-design -> tasks -> coding`.
+- For initial project setup, follow the staged workflow: `proposal -> high-level-design -> detailed-design -> tasks -> coding`.
+- For ongoing development, prefer incremental flows: feature change, bugfix, refactor.
 - In requirement/design stages, do not guess missing intent; ask clarifying questions when ambiguity affects scope, architecture, acceptance criteria, or constraints.
 - In coding stage, act from documented tasks and boundaries; if an implementation assumption is necessary, record it in `.ai/state/assumptions.md`.
 - Work one module at a time.
 - Keep modules loosely coupled and independently testable.
 - Before marking any task complete, ensure lint, typecheck, and tests pass for the active profile.
 - Update task checklist files and `docs/tasks/progress.md` after finishing work.
+- For feature / bugfix / refactor work, prefer creating a file under `docs/changes/` first.
 - Prefer new chat/session when context becomes long; rely on files, not on old conversation memory.
