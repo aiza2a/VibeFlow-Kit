@@ -1,0 +1,16 @@
+{
+  "name": "typescript",
+  "description": "TypeScript profile for Node.js projects",
+  "commands": {
+    "format": ["prettier --check ."],
+    "lint": ["eslint ."],
+    "typecheck": ["tsc --noEmit"],
+    "test": ["vitest run"]
+  },
+  "artifacts": {
+    "proposal": "docs/proposal.md",
+    "high_level_design": "docs/high-level-design.md",
+    "detailed_design": "docs/detailed-design.md",
+    "tasks_dir": "docs/tasks"
+  }
+}

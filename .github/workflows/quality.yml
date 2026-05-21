@@ -1,0 +1,22 @@
+name: quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  workflow-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate helper scripts syntax
+        run: python -m py_compile tools/vcflow.py tools/check.py tools/progress.py
+      - name: Init starter kit
+        run: python tools/vcflow.py init --profile python
+      - name: Show active profile
+        run: python tools/vcflow.py show-profile
+      - name: Refresh progress
+        run: python tools/progress.py

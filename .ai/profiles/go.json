@@ -1,0 +1,16 @@
+{
+  "name": "go",
+  "description": "Go profile for module-based projects",
+  "commands": {
+    "format": ["gofmt -w ."],
+    "lint": ["golangci-lint run"],
+    "typecheck": ["go vet ./..."],
+    "test": ["go test ./..."]
+  },
+  "artifacts": {
+    "proposal": "docs/proposal.md",
+    "high_level_design": "docs/high-level-design.md",
+    "detailed_design": "docs/detailed-design.md",
+    "tasks_dir": "docs/tasks"
+  }
+}
